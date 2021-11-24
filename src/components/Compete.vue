@@ -2,12 +2,21 @@
 import { Edit } from "@element-plus/icons";
 import { competeData } from "../test";
 import { useRouter } from "vue-router";
+import { onMounted } from "vue";
+import axios from "axios";
 
 const router = useRouter();
 
 function toDetail() {
   router.push("/signDetail");
 }
+
+onMounted(() => {
+  axios
+    .get("http://47.108.48.190:8080/showAllQN")
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err));
+});
 </script>
 
 <template>

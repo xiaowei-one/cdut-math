@@ -14,7 +14,6 @@
     "path": "^0.12.7",
     "vite-plugin-components": "^0.13.3",
     "vue": "^3.2.16",
-    "vue-canvas-nest": "^2.0.0",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {

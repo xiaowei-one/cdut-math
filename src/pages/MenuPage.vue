@@ -74,7 +74,7 @@ const login = async () => {
     </el-header>
 
     <el-main>
-      <router-view></router-view>
+      <router-view :loginState="state.loginState"></router-view>
     </el-main>
     <el-dialog v-model="state.dialogVisible" title="管理员登录" width="70%">
       <el-form ref="formRef" :model="state.form" label-width="auto">

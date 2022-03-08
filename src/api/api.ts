@@ -19,3 +19,5 @@ export const downloadFileById = (id: string) =>
 export const showForm = (id: string) => service.get(`/showField?id_fk=${id}`);
 
 export const submitForm = (data: any) => service.post("/intoContent", data);
+
+export const adminLogin = (data: any) => service.post("/login", data);

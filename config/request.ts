@@ -35,12 +35,9 @@ service.interceptors.response.use((response) => {
         const res = response.data;
         if (res.code === "0") {
             return response.data;
-        } else if (res.code === "-1") {
+        } else  {
             ElMessage.info(res.msg);
-            return response.data;
-        } else {
-            ElMessage.error(res.msg);
-            return Promise.reject("error");
+            return Promise.reject(response.data);
         }
     }
 });

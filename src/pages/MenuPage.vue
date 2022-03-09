@@ -1,23 +1,21 @@
 <script lang="ts" setup>
 import { Reading, Download, Upload, Tickets } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { adminLogin } from '../api/api';
+import { adminLogin, judgeLogin, cancellation } from '../api/api';
 
-interface stateType {
+const state: {
   dialogVisible: boolean;
-  form: formType;
+  form: {
+    account: string;
+    password: string;
+  };
   loginState: boolean;
   adminName: string;
-}
-
-interface formType {
-  account: string;
-  password: string;
-}
-
-const state: stateType = reactive({
+  tableConfig: { index: string, auto: string, operation: string },
+  isMobile: boolean;
+} = reactive({
   dialogVisible: false,
   form: {
     account: '',
@@ -25,9 +23,43 @@ const state: stateType = reactive({
   },
   loginState: false,
   adminName: '',
+  tableConfig: {
+    index: '',
+    auto: '',
+    operation: '',
+  },
+  isMobile: false,
 });
 
 const menuIndex = ref(useRoute().path);
+
+const setToken = (data: string) => {
+  localStorage.setItem('token', data);
+}
+
+const getToken = () => {
+  return localStorage.getItem('token');
+}
+
+const removeToken = () => {
+  localStorage.removeItem('token');
+}
+
+const judgeUserLogin = async () => {
+  const token = getToken();
+  if (token) {
+    const formData = new FormData();
+    formData.append('token', token);
+    const res: any = await judgeLogin(formData);
+    if (res.code === '0') {
+      state.adminName = res.data;
+    } else {
+      state.loginState = false;
+      removeToken();
+    }
+    judgeMobile();
+  }
+}
 
 const login = async () => {
   const formData = new FormData();
@@ -37,8 +69,49 @@ const login = async () => {
   ElMessage({ message: "登陆成功", type: "success" });
   state.loginState = true;
   state.dialogVisible = false;
-  state.adminName = data;
+  state.adminName = data.managerName;
+  setToken(data.token);
+  judgeMobile()
 };
+
+const handleCommand = async () => {
+  const token = getToken();
+  const res = await cancellation({ token });
+  state.loginState = false;
+  state.adminName = '';
+  removeToken();
+  judgeMobile()
+}
+
+const judgeMobile = () => {
+  const flag = !!navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
+  state.isMobile = flag;
+  if (flag && state.loginState) {
+    state.tableConfig = {
+      index: '50',
+      auto: 'auto',
+      operation: '100',
+    }
+  } else if (flag) {
+    state.tableConfig = {
+      index: '50',
+      auto: 'auto',
+      operation: '50',
+    }
+  } else {
+    state.tableConfig = {
+      index: '150',
+      auto: 'auto',
+      operation: '150',
+    }
+  }
+}
+
+onMounted(() => {
+  judgeMobile();
+  judgeUserLogin();
+})
+
 </script>
 
 <template>
@@ -68,15 +141,26 @@ const login = async () => {
       </el-menu>
 
       <el-aside class="admin">
-        <div v-if="state.loginState">{{ state.adminName }}</div>
+        <el-dropdown v-if="state.loginState" @command="handleCommand">
+          <span :class="state.isMobile ? 'adminName' : ''">{{ state.adminName }}</span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item>注销</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
         <el-button v-else plain size="small" @click="state.dialogVisible = true">登录</el-button>
       </el-aside>
     </el-header>
 
     <el-main>
-      <router-view :loginState="state.loginState"></router-view>
+      <router-view
+        :loginState="state.loginState"
+        :isMobile="state.isMobile"
+        :tableConfig="state.tableConfig"
+      ></router-view>
     </el-main>
-    <el-dialog v-model="state.dialogVisible" title="管理员登录" width="70%">
+    <el-dialog v-model="state.dialogVisible" title="管理员登录" :width="state.isMobile ? '70%' : '40%'">
       <el-form ref="formRef" :model="state.form" label-width="auto">
         <el-form-item label="账号">
           <el-input v-model="state.form.account"></el-input>
@@ -111,5 +195,14 @@ const login = async () => {
   justify-content: center;
   align-items: center;
   border-bottom: 1px solid #e6e6e6;
+}
+
+.adminName {
+  display: inline-block;
+  width: 10vw;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

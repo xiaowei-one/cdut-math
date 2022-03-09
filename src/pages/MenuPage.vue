@@ -35,14 +35,20 @@ const menuIndex = ref(useRoute().path);
 
 const setToken = (data: string) => {
   localStorage.setItem('token', data);
+  localStorage.setItem('name', state.adminName);
 }
 
 const getToken = () => {
   return localStorage.getItem('token');
 }
 
+const getName = () => {
+  return localStorage.getItem('name');
+}
+
 const removeToken = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('name');
 }
 
 const judgeUserLogin = async () => {
@@ -52,7 +58,8 @@ const judgeUserLogin = async () => {
     formData.append('token', token);
     const res: any = await judgeLogin(formData);
     if (res.code === '0') {
-      state.adminName = res.data;
+      state.adminName = getName() || '';
+      state.loginState = true;
     } else {
       state.loginState = false;
       removeToken();
@@ -76,9 +83,10 @@ const login = async () => {
 
 const handleCommand = async () => {
   const token = getToken();
-  const res = await cancellation({ token });
+  await cancellation(token);
   state.loginState = false;
   state.adminName = '';
+  ElMessage.info('注销成功');
   removeToken();
   judgeMobile()
 }

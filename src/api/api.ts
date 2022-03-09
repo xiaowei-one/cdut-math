@@ -23,10 +23,6 @@ export const submitForm = (data: any) => service.post("/intoContent", data);
 
 export const adminLogin = (data: any) => service.post("/login", data);
 
-export const judgeLogin = (data: any) => service({
-  url: '/judgeLogin',
-  method: 'post',
-  data,
-  // withCredentials: true,
-});
+export const judgeLogin = (data: any) => service.post("/judgeLogin", data);
+
 export const cancellation = (data: any) => service.get(`/cancellation?token=${data}`,);

@@ -38,7 +38,7 @@ service.interceptors.response.use((response) => {
     if (res.code === "0") {
       return res;
     } else {
-      ElMessage.info(res.msg);
+      ElMessage.error(res.msg);
       return Promise.reject(res);
     }
   }

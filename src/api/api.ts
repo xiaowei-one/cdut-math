@@ -25,4 +25,6 @@ export const adminLogin = (data: any) => service.post("/login", data);
 
 export const judgeLogin = (data: any) => service.post("/judgeLogin", data);
 
-export const cancellation = (data: any) => service.get(`/cancellation?token=${data}`,);
+export const cancellation = (data: any) => service.get(`/cancellation?token=${data}`);
+
+export const verification = (data: any) => service.post("/verification", data);
